@@ -73,9 +73,10 @@ else
 fi
 
 echo "$dirtree" | \
-sed -r 's/(.*)([^\/]+\/){1}/\1\/'$(printf "\x1b(0\x6d\x1b(B\x1b(0\x71\x1b(B\x1b(0\x71\x1b(B")' /g' | \
+sed -r 's/(.*)([^\/]+\/){1}/\1\/'$(printf "\x1b(0\x6d\x1b(B\x1b(0\x71\x1b(B\x1b(0\x71\x1b(B")'\\ /g' | \
 sed -r 's/[^\/]+\/{1}/\t/g' | \
-sed -r 's/^\/{1}//g' | \
+sed -r 's/\/{1}//g' | \
+sed -r 's/(\\ (\s|\S){8})((\S|\s)+)((\S|\s){3}$)/\1(..)\5/g' | \
 paste - <(echo "$sizetree" | awk -v r=$RED -v y=$YELLOW -v g=$GREEN -v b=$BLUE -v n=$NC \
 	'$2 > '"$hig"' { print r"["$1"]"n;next } $2 >= '"$med"' { print y"["$1"]"n;next } \
 	$2 >= '"$low"' { print g"["$1"]"n;next } $2 < '"$low"' { print b$1n;next }')
