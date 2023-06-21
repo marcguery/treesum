@@ -10,8 +10,10 @@ treesum.sh -h
 
 # Options
 
-- d (string): directory (default current).
-- p (integer): depth (default maximum).
-- m (integer): upper size limit in kilob for coloring sizes (default 100000).
-- a: include files.
-- n: Do not show sizes. In this case `tree` is a better choice (until reaching a huge file tree).
+- d (string): directory (default: current).
+- p (integer): file tree depth (default: all the way down).
+- m (integer): upper size limit in kilob for coloring sizes (default: auto-detect maximal size).
+- s (integer): to determine the upper and lower bounds for coloring smallest and biggest sizes; the higher is the scale the smaller are the bins (default: 20).
+- a: include files also (default: folders only).
+- n: do not show sizes (default: show sizes). In this case `tree` is a better choice!
+- o: show very small sizes instead of an upper bound (default: do not show very small sizes).
