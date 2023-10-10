@@ -59,7 +59,7 @@ if [ "${scale}" -lt 3 ];then
     exit 1
 fi
 
-cmddu='du'
+cmddu='du --block-size=1'
 cmdf='find'
 if [ ! -z "${repo}" ];then
     cmddu=$cmddu' '"${repo}"
@@ -88,10 +88,11 @@ else
     htree=$(echo "`$cmddu`")
     dirtree=$(echo "$htree" | cut -f2 | tac)
     if [ "$max" -eq 0 ]; then
-        max=$(echo "$htree" | cut -f1 | sort -nr | head -n1)
+        max=$(echo "$htree" | cut -f1 | sort -nr | head -n2 | tail -n1)
     fi
     sizetree=$(paste <(echo "$htree") <(echo "$htree" | cut -f1 | numfmt --to=iec --suffix=B --format="%3f"))
 fi
+
 
 hig=$(($max-$max/$scale))
 low=$(($max/$scale))
@@ -99,7 +100,7 @@ med=$(($max/2))
 
 if [ "${allsize}" -eq 0 ];then
     lowhuman=$(echo "<$(numfmt --to=iec --suffix=B --format="%3f" $low)")
-    newsizetree=$(awk -v OFS=$'\t' -v lh="$lowhuman" '$1 < '"$low"' { $3 = lh } { print ($1,$2,$3) }' <(echo "$sizetree"))
+    newsizetree=$(awk -F $'\t' -v OFS=$'\t' -v lh="$lowhuman" '$1 < '"$low"' { $3 = lh } { print ($1,$2,$3) }' <(echo "$sizetree"))
     sizetree="$newsizetree"
 fi
 
@@ -107,7 +108,7 @@ echo "$dirtree" | \
 sed -r 's/(.*)([^\/]+\/){1}/\1\/'$(printf "\x1b(0\x6d\x1b(B\x1b(0\x71\x1b(B\x1b(0\x71\x1b(B")'\\ /g' | \
 sed -r 's/[^\/]+\/{1}/\t/g' | \
 sed -r 's/\/{1}//g' | \
-sed -r 's/(\\ (\s|\S){8})((\S|\s)+)((\S|\s){3}$)/\1(..)\5/g' | \
+sed -r 's/(\\ (\s|\S){18})((\S|\s)+)((\S|\s){3}$)/\1(..)\5/g' | \
 paste - <(echo "$sizetree" | tac | awk -F $'\t' -v r=$RED -v y=$YELLOW -v g=$GREEN -v b=$BLUE -v n=$NC \
     '$1 >= '"$hig"' { print r"["$3"]"n;next } $1 >= '"$med"' { print y"["$3"]"n;next } \
     $1 >= '"$low"' { print g"["$3"]"n;next } $1 < '"$low"' { print b"["$3"]"n;next }')
